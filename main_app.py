@@ -97,7 +97,7 @@ fig, ax = plt.subplots()
 j = 1
 maxim = 10000
 
-while j <= 10000:
+while j <= maxim:
     with placeholder.container():
         for k in range(len(column_monitor)):
             ax.plot(range(0, j), data_monitor[column_monitor[k]].iloc[0:j], co)
