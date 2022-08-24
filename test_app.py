@@ -7,10 +7,12 @@ import matplotlib.pyplot as plt
 from st_aggrid import AgGrid
 import matplotlib.animation as animation
 import streamlit.components.v1 as components
+from tools import anomaly_detection as ad
 
 file_name = "data/data_source" + "_" + "L26E" + ".csv"
 data = pd.read_csv(file_name, sep=",")
-data = pd.read_csv(file_name, sep=",")
+data.ewm(span=30).mean()
+data.dropna(inplace=True)
 data_monitor = data.loc[:, ["TimeStamp",
                             "L26E1 - GG Temp 1",
                             "L26E2 - GG Temp 2",
@@ -53,8 +55,10 @@ column = data_monitor.columns.values
 #
 # components.html(ani.to_html5_video(), height=900, width=900)
 
-data.ewm(span=30).mean()
 
-data.dropna(inplace=True)
+data_true = data_monitor.loc[:, ["TimeStamp", "L26E1 - GG Temp 1"]]
+# data_true = data_true.set_index('TimeStamp')
+# data_true.index = pd.to_datetime(data_true.index)
+anomaly = ad.anomaly_detection(data_true)
 
-print(data)
+print(anomaly)

@@ -8,6 +8,7 @@ import matplotlib.animation as animation
 import streamlit.components.v1 as components
 import datetime as dt
 from PIL import Image
+from tools import anomaly_detection as dt
 
 # Sidebar
 image = Image.open("images/logo_rtm-p.png")
@@ -44,7 +45,6 @@ st.markdown("<h3 style=\"text-align:center;\">Data Preparation</h3>", unsafe_all
 st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
             "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
 
-
 col1, col2 = st.columns(2)
 
 with col1:
@@ -72,7 +72,8 @@ data.ewm(span=spacing).mean()
 
 data.dropna(inplace=True)
 
-data_monitor = data.loc[:, ["L26E1 - GG Temp 1",
+data_monitor = data.loc[:, ["TimeStamp",
+                            "L26E1 - GG Temp 1",
                             "L26E2 - GG Temp 2",
                             "L26E3 - GG Temp 3",
                             "L26E4 - GG Temp 4",
@@ -90,17 +91,32 @@ st.markdown("<h3 style=\"text-align:center;\">Monitoring Well " + well + "</h3>"
 st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
             "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
 
+colors = ["black",
+          "blue",
+          "yellow",
+          "green",
+          "brown",
+          "grey",
+          "red",
+          "purple"]
 
 placeholder = st.empty()
 
 fig, ax = plt.subplots()
 j = 1
-maxim = 10000
+maxim = 1000
 
-while j <= 10000:
+while j <= maxim:
     with placeholder.container():
-        for k in range(len(column_monitor)):
-            ax.plot(range(0, j), data_monitor[column_monitor[k]].iloc[0:j], co)
+        for k in range(1, len(column_monitor)):
+            ax.plot(range(0, j), data_monitor[column_monitor[k]].iloc[0:j], color=colors[k-1])
+            data_true = data_monitor.loc[0:j, ["TimeStamp", column_monitor[k]]]
+            data_true = data_true.set_index("TimeStamp")
+            data_true.index = pd.to_datetime(data_true.index)
+            value = dt.validate_series(data_true)
+
+            if str(value) == "True":
+                ax.axvline(x=j, linewidth=2)
 
         ax.set_xlim(0, maxim)
         ax.set_ylim(min(data_monitor[column_monitor[1]]), max(data_monitor[column_monitor[1]]))
