@@ -104,7 +104,7 @@ placeholder = st.empty()
 
 fig, ax = plt.subplots()
 j = 1
-maxim = 1000
+maxim = 10000
 
 while j <= maxim:
     with placeholder.container():
