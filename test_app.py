@@ -57,8 +57,9 @@ column = data_monitor.columns.values
 
 
 data_true = data_monitor.loc[:, ["TimeStamp", "L26E1 - GG Temp 1"]]
-# data_true = data_true.set_index('TimeStamp')
-# data_true.index = pd.to_datetime(data_true.index)
+data_true = data_true.set_index('TimeStamp')
+data_true.index = pd.to_datetime(data_true.index)
 anomaly = ad.anomaly_detection(data_true)
 
-print(anomaly)
+if not anomaly:
+    print("Hello")
