@@ -115,8 +115,8 @@ while j <= maxim:
             data_true.index = pd.to_datetime(data_true.index)
             value = dt.validate_series(data_true)
 
-        if not any(value):
-            ax.axvspan(j-1, j, facecolor='0.5')
+            if not any(value):
+                ax.axvspan(j - 1, j, facecolor='0.5')
 
         ax.set_xlim(0, maxim)
         ax.set_ylim(min(data_monitor[column_monitor[1]]), max(data_monitor[column_monitor[1]]))

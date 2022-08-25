@@ -61,5 +61,5 @@ data_true = data_true.set_index('TimeStamp')
 data_true.index = pd.to_datetime(data_true.index)
 anomaly = ad.anomaly_detection(data_true)
 
-if not anomaly:
+if not any(anomaly):
     print("Hello")
