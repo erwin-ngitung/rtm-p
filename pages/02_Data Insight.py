@@ -20,9 +20,9 @@ st.markdown("<h3 style=\"text-align:center;\">Data Preparation</h3>", unsafe_all
 
 st.write("Where the well do you want to monitor?")
 well = st.selectbox("Please choice one!", ["L26E",
-                                            "L26F",
-                                            "L26G",
-                                            "L26H"])
+                                           "L26F",
+                                           "L26G",
+                                           "L26H"])
 file_name = "data/dataset" + "_" + well + ".csv"
 data = pd.read_csv(file_name, sep=",")
 column_data = np.asarray(data.columns.values[1:])
@@ -34,6 +34,7 @@ column = st.selectbox("Please choice one part simulator!", column_data)
 
 st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
             "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
+st.markdown("<h3 style=\"text-align:center;\">Graph Insight Well " + well + " Part " + column + "</h3>", unsafe_allow_html=True)
 
 data = pdt.create_data(data)
 # data.ewm(span=spacing).mean()
