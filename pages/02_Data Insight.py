@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from tools import anomaly_detection as dt
 from tools import processing_data as pdt
 from PIL import Image
+import time
 
 # Title
 
@@ -22,9 +22,6 @@ well = st.selectbox("Please choice one!", ["L26E",
                                             "L26F",
                                             "L26G",
                                             "L26H"])
-
-st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
-            "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
 
 # Monitoring Plot
 
@@ -52,25 +49,32 @@ data_quarter = data.groupby('Quarter')
 data_month = data.groupby('Month')
 data_day = data.groupby('Day')
 
-fig = plt.figure()
-plt.subplot(2, 2, 1)
+with st.spinner('Wait for it...'):
+    time.sleep(5)
+
+fig = plt.figure(figsize=(15, 5))
 data_year["GG Temp Avg"].agg('mean').plot()
 plt.xlabel('')
 plt.title('Temperature Average GG Combust by Year')
+st.pyplot(fig)
 
-plt.subplot(2, 2, 2)
+fig = plt.figure(figsize=(15, 5))
 data_quarter["GG Temp Avg"].agg('mean').plot()
 plt.xlabel('')
 plt.title('Temperature Average GG Combust by Quarter')
+st.pyplot(fig)
 
-plt.subplot(2, 2, 3)
+fig = plt.figure(figsize=(15, 5))
 data_month["GG Temp Avg"].agg('mean').plot()
 plt.xlabel('')
 plt.title('Temperature Average GG Combust by Month')
+st.pyplot(fig)
 
-plt.subplot(2, 2, 4)
+fig = plt.figure(figsize=(15, 5))
 data_day["GG Temp Avg"].agg('mean').plot()
 plt.xlabel('')
 plt.title('Temperature Average GG Combust by Day')
-
 st.pyplot(fig)
+
+st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
+            "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
