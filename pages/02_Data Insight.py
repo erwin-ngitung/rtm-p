@@ -7,7 +7,6 @@ import time
 import numpy as np
 
 # Title
-
 image = Image.open("images/logo_rtm-p.png")
 st1, st2, st3 = st.columns(3)
 

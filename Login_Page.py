@@ -19,7 +19,6 @@ if submit and email == actual_email and password == actual_password:
     placeholder.empty()
     st.success("Login successful")
 
-
 elif submit and email != actual_email and password != actual_password:
     st.error("Login failed")
 
