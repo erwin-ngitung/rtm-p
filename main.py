@@ -3,10 +3,11 @@ from streamlit_multipage import MultiPage
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
-from tools import anomaly_detection as dt
-from tools import processing_data as pdt
 import time
 import numpy as np
+from tools import anomaly_detection as dt
+from tools import processing_data as pdt
+from tools import building_model as bd
 
 
 def login(st, **state):
@@ -61,7 +62,7 @@ def dashboard(st, **state):
 
     st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
-    st.markdown("<h3 style=\"text-align:center;\">Data Preparation</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style=\"text-align:center;\">Dashboard</h3>", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
 
@@ -162,6 +163,8 @@ def dashboard(st, **state):
             ax.set_xlim(0, maxim)
             ax.set_ylim(min(data_monitor[column_monitor[1]]), max(data_monitor[column_monitor[1]]))
             ax.set_title(str(data["TimeStamp"].iloc[j]))
+            ax.set_xlabel("Index")
+            ax.set_ylabel(pdt.unit(column))
             ax.legend(column_monitor[1:], loc=4, fontsize='xx-small')
 
             st.pyplot(fig)
@@ -186,9 +189,9 @@ def insight(st, **state):
 
     st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
-    st.markdown("<h3 style=\"text-align:center;\">Data Preparation</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style=\"text-align:center;\">Data Insight</h3>", unsafe_allow_html=True)
 
-    st.write("Where the well do you want to monitor?")
+    st.write("Where the well do you want to get more information?")
     well = st.selectbox("Please choice one!", ["L26E",
                                                "L26F",
                                                "L26G",
@@ -232,25 +235,29 @@ def insight(st, **state):
 
     fig = plt.figure(figsize=(15, 5))
     data_year[column].agg('mean').plot()
-    plt.xlabel('')
+    plt.xlabel("Year")
+    plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Year'))
     st.pyplot(fig)
 
     fig = plt.figure(figsize=(15, 5))
     data_quarter[column].agg('mean').plot()
-    plt.xlabel('')
+    plt.xlabel("Quarter")
+    plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Quarter'))
     st.pyplot(fig)
 
     fig = plt.figure(figsize=(15, 5))
     data_month[column].agg('mean').plot()
-    plt.xlabel('')
+    plt.xlabel("Month")
+    plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Month'))
     st.pyplot(fig)
 
     fig = plt.figure(figsize=(15, 5))
     data_day[column].agg('mean').plot()
-    plt.xlabel('')
+    plt.xlabel("Days")
+    plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Day'))
     st.pyplot(fig)
 
@@ -275,6 +282,67 @@ def deployment(st, **state):
     st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
     st.markdown("<h3 style=\"text-align:center;\">Deployment Model</h3>", unsafe_allow_html=True)
+
+    well = st.selectbox("Please choice the well!", ["L26E",
+                                                    "L26F",
+                                                    "L26G",
+                                                    "L26H"])
+    file_name = "data/dataset" + "_" + well + ".csv"
+    data = pd.read_csv(file_name, sep=",")
+    data = pdt.create_data(data)
+    # data.ewm(span=spacing).mean()
+    
+    data.dropna(inplace=True)
+
+    # st.dataframe(data)
+
+    column_feature = data.columns.values[1:]
+
+    feature = st.selectbox("Please choice one column as feature anomaly detection!", column_feature)
+
+    col5, col6 = st.columns(2)
+
+    with col5:
+        high = float(st.number_input('Insert a highest limit for safety'))
+
+    with col6:
+        low = float(st.number_input('Insert a lowest limit for safety'))
+
+    st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
+                "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
+    st.markdown("<h3 style=\"text-align:center;\">Building Model</h3>", unsafe_allow_html=True)
+
+    with st.spinner('Wait for it...'):
+        time.sleep(5)
+
+    data_ml = dt.anomaly_detection(data, high, low, feature)
+
+    model_ml = st.radio("Please select model deep learning do you want!", ('LSTM',
+                                                                           'CNN',
+                                                                           'DeepAR',
+                                                                           'ANN'))
+
+    train_size = float(st.number_input('Please input train size do you want! (value: 0 - 1)'))
+
+    if model_ml == "LSTM":
+        model, history = bd.model_lstm(data, data_ml, train_size)
+    else:
+        pass
+
+    st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
+                "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
+    st.markdown("<h3 style=\"text-align:center;\">Accuracy Model</h3>", unsafe_allow_html=True)
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.plot(history.history['acc'], label='Train Accuracy')
+    ax.plot(history.history['val_acc'], label='Test Accuracy')
+    ax.set_ylim(0, 1)
+    ax.set_itle('Model Accuracy')
+    ax.set_ylabel('Accuracy')
+    ax.set_xlabel('Epochs')
+    ax.legend(loc='upper right')
+
+    st.pyplot(fig)
 
 
 def messages(st, **state):

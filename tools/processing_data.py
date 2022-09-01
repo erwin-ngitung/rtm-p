@@ -19,3 +19,23 @@ def create_data(dataset):
         dataset[name_1] = dataset[name_2] - dataset["GG Temp Avg"]
 
     return dataset
+
+
+def unit(features):
+    units = {"GG Temp 1": "Temperature (C)",
+             "GG Temp 2": "Temperature (C)",
+             "GG Temp 3": "Temperature (C)",
+             "GG Temp 4": "Temperature (C)",
+             "GG Temp 5": "Temperature (C)",
+             "GG Temp 6": "Temperature (C)",
+             "GG Temp 7": "Temperature (C)",
+             "GG Temp 8": "Temperature (C)",
+             "GG Temp Avg": "Temperature (C)",
+             "GG Compr Press": "Pressure (psi)",
+             "GG Speed Actual": "Speed (rms)",
+             "GG Inlet Vibr": "Speed (rms)",
+             "GG Center Vib": "Speed (rms)"}
+
+    value = units[features]
+
+    return value

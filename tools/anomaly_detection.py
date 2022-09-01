@@ -4,17 +4,18 @@ from adtk.visualization import plot
 import pandas as pd
 
 
-def anomaly_detection(data):
+def anomaly_detection(dataset, high, low, column):
+    data = dataset.loc[:, ["TimeStamp",
+                           column]]
     data = data.set_index("TimeStamp")
     data.index = pd.to_datetime(data.index)
     data = validate_series(data)
-    threshold_ad = ThresholdAD(high=1200, low=500)
+    threshold_ad = ThresholdAD(high=high, low=low)
     anomalies = threshold_ad.detect(data)
+    data["Anomaly"] = anomalies.values
+    data["Anomaly"] = pd.get_dummies(data["Anomaly"], drop_first=True)
 
-    graph = plot(data, anomaly=anomalies, ts_linewidth=1, ts_markersize=3, anomaly_markersize=5, anomaly_color='red',
-                 anomaly_tag="marker")
-
-    return graph
+    return data["Anomaly"].values
 
 
 def anomaly_detection_manual(data, column, high, low):
