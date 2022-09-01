@@ -1,21 +1,69 @@
-import streamlit as st
 from streamlit_multipage import MultiPage
-import pandas as pd
-import matplotlib.pyplot as plt
-from PIL import Image
-import time
-import numpy as np
 from tools import anomaly_detection as dt
 from tools import processing_data as pdt
 from tools import building_model as bd
+from tools import check_email, list_email
+from PIL import Image
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import time
+import numpy as np
+import warnings
+
+warnings.filterwarnings("ignore")
+
+
+def sign_up(st, **state):
+    placeholder = st.empty()
+
+    with placeholder.form("Sign Up"):
+        st.warning("Please sign up your account!")
+
+        # name_ = state["name"] if "name" in state else ""
+        name = st.text_input("Name: ")
+
+        # username_ = state["username"] if "username" in state else ""
+        username = st.text_input("Username: ")
+
+        # email_ = state["email"] if "email" in state else ""
+        email = st.text_input("Email")
+
+        # password_ = state["password"] if "password" in state else ""
+        password = st.text_input("Password", type="password")
+
+        save = st.form_submit_button("Save")
+
+    if save and check_email(email) == "valid email":
+        placeholder.empty()
+        st.success("Hello " + name + ", your profile has been save successfully")
+        MultiPage.save({"name": name,
+                        "username": username,
+                        "email": email,
+                        "password": password,
+                        "login": "True",
+                        "edit": True})
+
+    elif save and check_email(email) == "invalid email":
+        st.success("Hello " + name + ", your profile hasn't been save successfully because your email invalid!")
+
+    else:
+        pass
 
 
 def login(st, **state):
+    st.snow()
     # Create an empty container
-    placeholder = st.empty()
 
-    actual_email = "rtm-p.agora@gmail.com"
-    actual_password = "rtm-p"
+    actual_email = state["email"]
+    actual_password = state["password"]
+
+    if "email" not in state or "password" not in state:
+        actual_email = "agora.rtm-p@gmail.com"
+        actual_password = "agora_dev"
+        return actual_email, actual_password
+
+    placeholder = st.empty()
 
     # Insert a form in the container
     with placeholder.form("login"):
@@ -30,6 +78,8 @@ def login(st, **state):
         password = st.text_input("Password", type="password")
         submit = st.form_submit_button("Login")
 
+        st.write("Are you ready registered account in this app? If you don't yet, please sign up your account!")
+
     if submit and email == actual_email and password == actual_password:
         # If the form is submitted and the email and password are correct,
         # clear the form/container and display a success message
@@ -37,12 +87,10 @@ def login(st, **state):
         st.success("Login successful")
         MultiPage.save({"login": "True"})
 
-    elif submit and email != actual_email and password != actual_password:
+    elif submit and email != actual_email or password != actual_password:
         st.error("Login failed")
-        MultiPage.save({"login": "False"})
 
     else:
-        MultiPage.save({"login": "False"})
         pass
 
 
@@ -187,6 +235,12 @@ def insight(st, **state):
     with st2:
         st.image(image)
 
+    restriction = state["login"]
+
+    if "login" not in state or restriction == "False":
+        st.warning("Please login with your registered email!")
+        return
+
     st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
     st.markdown("<h3 style=\"text-align:center;\">Data Insight</h3>", unsafe_allow_html=True)
@@ -267,6 +321,7 @@ def insight(st, **state):
 
 def deployment(st, **state):
     # Title
+    global history, model
     image = Image.open("images/logo_rtm-p.png")
     st1, st2, st3 = st.columns(3)
 
@@ -291,7 +346,7 @@ def deployment(st, **state):
     data = pd.read_csv(file_name, sep=",")
     data = pdt.create_data(data)
     # data.ewm(span=spacing).mean()
-    
+
     data.dropna(inplace=True)
 
     # st.dataframe(data)
@@ -317,10 +372,22 @@ def deployment(st, **state):
 
     data_ml = dt.anomaly_detection(data, high, low, feature)
 
-    model_ml = st.radio("Please select model deep learning do you want!", ('LSTM',
-                                                                           'CNN',
-                                                                           'DeepAR',
-                                                                           'ANN'))
+    kind_ml = st.selectbox("Please select your kind model!", ["Supervised Learning",
+                                                              "Unsupervised Learning"])
+
+    if kind_ml == "Supervised Learning":
+        model = ["Random Forest",
+                 "SVM",
+                 "Logistic Distibution",
+                 "SVR"]
+
+    elif kind_ml == "Unsupervised Learning":
+        model = ["LSTM",
+                 "CNN",
+                 "ANN",
+                 "DeepAr"]
+
+    model_ml = st.radio("Please select model deep learning do you want!", model)
 
     train_size = float(st.number_input('Please input train size do you want! (value: 0 - 1)'))
 
@@ -337,7 +404,7 @@ def deployment(st, **state):
     ax.plot(history.history['acc'], label='Train Accuracy')
     ax.plot(history.history['val_acc'], label='Test Accuracy')
     ax.set_ylim(0, 1)
-    ax.set_itle('Model Accuracy')
+    ax.set_title('Model Accuracy')
     ax.set_ylabel('Accuracy')
     ax.set_xlabel('Epochs')
     ax.legend(loc='upper right')
@@ -363,6 +430,39 @@ def messages(st, **state):
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
     st.markdown("<h3 style=\"text-align:center;\">Messages</h3>", unsafe_allow_html=True)
 
+    placeholder = st.empty()
+    ind = True
+    i = 0
+
+    with placeholder.form("Message"):
+        email = st.text_input("Email")
+        text = st.text_area("Messages")
+        submit = st.form_submit_button("Send")
+
+        actual_email = list_email()
+
+    if submit and check_email(email) == "valid email":
+        placeholder.empty()
+        st.success("Before your message will be send, please confirm your messages again!")
+        vals = st.write("<form action= 'https://formspree.io/f/xeqdqdon' "
+                        "method='POST'>"
+                        "<label> Email: <br> <input type='email' name='email' value='" + str(email) +
+                        "'style='width:705px; height:50px;'></label>"
+                        "<br> <br>"
+                        "<label> Message: <br> <textarea name='Messages' value='" + str(text) +
+                        "'style='width:705px; height:200px;'></textarea></label>"
+                        "<br> <br>"
+                        "<button type='submit'>Confirm</button>"
+                        "</form>", unsafe_allow_html=True)
+
+        if vals is not None:
+            st.success("Your messages has been send successfully!")
+
+    elif submit and check_email(email) == "invalid email":
+        st.success("Your message hasn't been send successfully because email receiver not in list")
+
+    else:
+        pass
 
 def account(st, **state):
     # Title
@@ -373,6 +473,7 @@ def account(st, **state):
         st.image(image)
 
     restriction = state["login"]
+    password = state["password"]
 
     if "login" not in state or restriction == "False":
         st.warning("Please login with your registered email!")
@@ -382,9 +483,53 @@ def account(st, **state):
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
     st.markdown("<h3 style=\"text-align:center;\">Account Setting</h3>", unsafe_allow_html=True)
 
+    placeholder = st.empty()
+
+    st.write("Do you want to edit your account?")
+    edited = st.button("Edit")
+    state["edit"] = np.invert(edited)
+
+    with placeholder.form("Account"):
+        name_ = state["name"] if "name" in state else ""
+        name = st.text_input("Name", placeholder=name_, disabled=state["edit"])
+
+        username_ = state["username"] if "username" in state else ""
+        username = st.text_input("Username", placeholder=username_, disabled=state["edit"])
+
+        email_ = state["email"] if "email" in state else ""
+        email = st.text_input("Email", placeholder=email_, disabled=state["edit"])
+
+        if edited:
+            current_password = st.text_input("Old Password", type="password", disabled=state["edit"])
+        else:
+            current_password = password
+
+        # current_password_ = state["password"] if "password" in state else ""
+        new_password = st.text_input("New Password", type="password", disabled=state["edit"])
+
+        save = st.form_submit_button("Save")
+
+    if save and current_password == password:
+        st.success("Hi " + name + ", your profile has been update successfully")
+        MultiPage.save({"name": name,
+                        "username": username,
+                        "email": email,
+                        "password": new_password,
+                        "edit": True})
+
+    elif save and current_password != password:
+        st.success("Hi " + name + ", your profile hasn't been update successfully because your current password"
+                                  " doesn't match!")
+
+    elif save and check_email(email) == "invalid email":
+        st.success("Hi " + name + ", your profile hasn't been update successfully because your email invalid!")
+
+    else:
+        pass
+
 
 def logout(st, **state):
-    st.write("Your account has been log out from this app")
+    st.success("Your account has been log out from this app")
     MultiPage.save({"login": "False"})
 
 
@@ -397,6 +542,7 @@ app.navbar_style = "VerticalButton"
 app.hide_menu = False
 app.hide_navigation = True
 
+app.add_app("Sign Up", sign_up)
 app.add_app("Login", login)
 app.add_app("Dashboard", dashboard)
 app.add_app("Data Insight", insight)

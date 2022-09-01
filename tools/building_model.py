@@ -3,7 +3,8 @@ from tensorflow.keras.layers import *
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.callbacks import EarlyStopping
 import streamlit as st
-import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def create_dataset(data_input, data_output, size):

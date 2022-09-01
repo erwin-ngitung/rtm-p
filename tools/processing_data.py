@@ -1,5 +1,5 @@
-import numpy as np
-import pandas as pd
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def create_data(dataset):

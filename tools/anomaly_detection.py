@@ -1,7 +1,8 @@
 from adtk.data import validate_series
 from adtk.detector import ThresholdAD
-from adtk.visualization import plot
 import pandas as pd
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def anomaly_detection(dataset, high, low, column):
