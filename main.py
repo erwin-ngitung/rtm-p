@@ -2,7 +2,7 @@ from streamlit_multipage import MultiPage
 from tools import anomaly_detection as dt
 from tools import processing_data as pdt
 from tools import building_model as bd
-from tools import check_email, list_email
+from tools import check_email
 from PIL import Image
 import streamlit as st
 import pandas as pd
@@ -54,44 +54,46 @@ def sign_up(st, **state):
 def login(st, **state):
     st.snow()
     # Create an empty container
+    try:
+        actual_email = state["email"]
+        actual_password = state["password"]
 
-    actual_email = state["email"]
-    actual_password = state["password"]
+        if "email" not in state or "password" not in state:
+            actual_email = "agora.rtm-p@gmail.com"
+            actual_password = "agora_dev"
+            return actual_email, actual_password
 
-    if "email" not in state or "password" not in state:
-        actual_email = "agora.rtm-p@gmail.com"
-        actual_password = "agora_dev"
-        return actual_email, actual_password
+        placeholder = st.empty()
 
-    placeholder = st.empty()
+        # Insert a form in the container
+        with placeholder.form("login"):
+            image = Image.open("images/logo_rtm-p.png")
+            st1, st2, st3 = st.columns(3)
 
-    # Insert a form in the container
-    with placeholder.form("login"):
-        image = Image.open("images/logo_rtm-p.png")
-        st1, st2, st3 = st.columns(3)
+            with st2:
+                st.image(image)
 
-        with st2:
-            st.image(image)
+            st.markdown("#### Login App RTM-P")
+            email = st.text_input("Email")
+            password = st.text_input("Password", type="password")
+            submit = st.form_submit_button("Login")
 
-        st.markdown("#### Login App RTM-P")
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
-        submit = st.form_submit_button("Login")
+            st.write("Are you ready registered account in this app? If you don't yet, please sign up your account!")
 
-        st.write("Are you ready registered account in this app? If you don't yet, please sign up your account!")
+        if submit and email == actual_email and password == actual_password:
+            # If the form is submitted and the email and password are correct,
+            # clear the form/container and display a success message
+            placeholder.empty()
+            st.success("Login successful")
+            MultiPage.save({"login": "True"})
 
-    if submit and email == actual_email and password == actual_password:
-        # If the form is submitted and the email and password are correct,
-        # clear the form/container and display a success message
-        placeholder.empty()
-        st.success("Login successful")
-        MultiPage.save({"login": "True"})
+        elif submit and email != actual_email or password != actual_password:
+            st.error("Login failed")
 
-    elif submit and email != actual_email or password != actual_password:
-        st.error("Login failed")
-
-    else:
-        pass
+        else:
+            pass
+    except:
+        st.error("You haven't registered to this app! Please sign up your account!")
 
 
 def dashboard(st, **state):
@@ -173,10 +175,10 @@ def dashboard(st, **state):
     col3, col4 = st.columns(2)
 
     with col3:
-        high = float(st.number_input('Insert a highest limit for safety'))
+        high = float(st.number_input(str('Insert a highest limit for safety (' + pdt.unit(column) + ")")))
 
     with col4:
-        low = float(st.number_input('Insert a lowest limit for safety'))
+        low = float(st.number_input(str('Insert a lowest limit for safety (' + pdt.unit(column) + ")")))
 
     placeholder = st.empty()
 
@@ -287,33 +289,33 @@ def insight(st, **state):
     with st.spinner('Wait for it...'):
         time.sleep(5)
 
-    fig = plt.figure(figsize=(15, 5))
+    figs = plt.figure(figsize=(15, 5))
     data_year[column].agg('mean').plot()
     plt.xlabel("Year")
     plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Year'))
-    st.pyplot(fig)
+    st.pyplot(figs)
 
-    fig = plt.figure(figsize=(15, 5))
+    figs = plt.figure(figsize=(15, 5))
     data_quarter[column].agg('mean').plot()
     plt.xlabel("Quarter")
     plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Quarter'))
-    st.pyplot(fig)
+    st.pyplot(figs)
 
-    fig = plt.figure(figsize=(15, 5))
+    figs = plt.figure(figsize=(15, 5))
     data_month[column].agg('mean').plot()
     plt.xlabel("Month")
     plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Month'))
-    st.pyplot(fig)
+    st.pyplot(figs)
 
-    fig = plt.figure(figsize=(15, 5))
+    figs = plt.figure(figsize=(15, 5))
     data_day[column].agg('mean').plot()
     plt.xlabel("Days")
     plt.ylabel(pdt.unit(column))
     plt.title(str('Data Insight ' + column + ' by Day'))
-    st.pyplot(fig)
+    st.pyplot(figs)
 
     st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
@@ -321,7 +323,7 @@ def insight(st, **state):
 
 def deployment(st, **state):
     # Title
-    global history, model
+    global history, model, fig
     image = Image.open("images/logo_rtm-p.png")
     st1, st2, st3 = st.columns(3)
 
@@ -358,10 +360,10 @@ def deployment(st, **state):
     col5, col6 = st.columns(2)
 
     with col5:
-        high = float(st.number_input('Insert a highest limit for safety'))
+        high = float(st.number_input(str('Insert a highest limit for safety (' + pdt.unit(feature) + ")")))
 
     with col6:
-        low = float(st.number_input('Insert a lowest limit for safety'))
+        low = float(st.number_input(str('Insert a lowest limit for safety (' + pdt.unit(feature) + ")")))
 
     st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
@@ -370,46 +372,48 @@ def deployment(st, **state):
     with st.spinner('Wait for it...'):
         time.sleep(5)
 
-    data_ml = dt.anomaly_detection(data, high, low, feature)
+    try:
+        data_ml = dt.anomaly_detection(data, high, low, feature)
 
-    kind_ml = st.selectbox("Please select your kind model!", ["Supervised Learning",
-                                                              "Unsupervised Learning"])
+        kind_ml = st.selectbox("Please select your kind model!", ["Supervised Learning",
+                                                                  "Unsupervised Learning"])
 
-    if kind_ml == "Supervised Learning":
-        model = ["Random Forest",
-                 "SVM",
-                 "Logistic Distibution",
-                 "SVR"]
+        if kind_ml == "Supervised Learning":
+            model = ["Logistic Regression",
+                     "Random Forest",
+                     "SVM"]
 
-    elif kind_ml == "Unsupervised Learning":
-        model = ["LSTM",
-                 "CNN",
-                 "ANN",
-                 "DeepAr"]
+        elif kind_ml == "Unsupervised Learning":
+            model = ["LSTM",
+                     "CNN"]
 
-    model_ml = st.radio("Please select model deep learning do you want!", model)
+        model_ml = st.radio("Please select model deep learning do you want!", model)
 
-    train_size = float(st.number_input('Please input train size do you want! (value: 0 - 1)'))
+        train_size = float(st.number_input('Please input train size do you want! (value: 0 - 1)'))
 
-    if model_ml == "LSTM":
-        model, history = bd.model_lstm(data, data_ml, train_size)
-    else:
-        pass
+        st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
+                    "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
+        st.markdown("<h3 style=\"text-align:center;\">Accuracy Model</h3>", unsafe_allow_html=True)
 
-    st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
-                "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
-    st.markdown("<h3 style=\"text-align:center;\">Accuracy Model</h3>", unsafe_allow_html=True)
+        try:
+            if model_ml == "LSTM":
+                model, fig = bd.model_lstm(data, data_ml, train_size)
+            elif model_ml == "CNN":
+                model, fig = bd.model_cnn(data, data_ml, train_size)
+            elif model_ml == "Logistic Regression":
+                model, fig = bd.model_logistic(data, data_ml, train_size)
+            elif model_ml == "Random Forest":
+                model, fig = bd.model_random_forest(data, data_ml, train_size)
+            elif model_ml == "SVM":
+                model, fig = bd.model_svm(data, data_ml, train_size)
 
-    fig, ax = plt.subplots(figsize=(8, 4))
-    ax.plot(history.history['acc'], label='Train Accuracy')
-    ax.plot(history.history['val_acc'], label='Test Accuracy')
-    ax.set_ylim(0, 1)
-    ax.set_title('Model Accuracy')
-    ax.set_ylabel('Accuracy')
-    ax.set_xlabel('Epochs')
-    ax.legend(loc='upper right')
+            st.pyplot(fig)
 
-    st.pyplot(fig)
+        except:
+            st.error("Please input train size your model!")
+
+    except:
+        st.error("Please input the value of highest and lowest limit safety!")
 
 
 def messages(st, **state):
@@ -431,15 +435,11 @@ def messages(st, **state):
     st.markdown("<h3 style=\"text-align:center;\">Messages</h3>", unsafe_allow_html=True)
 
     placeholder = st.empty()
-    ind = True
-    i = 0
 
     with placeholder.form("Message"):
         email = st.text_input("Email")
         text = st.text_area("Messages")
         submit = st.form_submit_button("Send")
-
-        actual_email = list_email()
 
     if submit and check_email(email) == "valid email":
         placeholder.empty()
@@ -463,6 +463,7 @@ def messages(st, **state):
 
     else:
         pass
+
 
 def account(st, **state):
     # Title
