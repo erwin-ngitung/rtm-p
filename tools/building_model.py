@@ -7,7 +7,9 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import confusion_matrix
+import numpy as np
+import pickle
 import warnings
 deprecation._PRINT_DEPRECATION_WARNINGS = False
 warnings.filterwarnings("ignore")
@@ -67,6 +69,8 @@ def model_lstm(data_input, data_output, size):
                         shuffle=False,
                         callbacks=[EarlyStopping(monitor='val_loss', patience=10)])
 
+    model.save('/data/model_lstm.h5')
+
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.plot(history.history['accuracy'], label='Train Accuracy')
     ax.plot(history.history['val_accuracy'], label='Test Accuracy')
@@ -103,6 +107,8 @@ def model_cnn(data_input, data_output, size):
                         shuffle=False,
                         callbacks=[EarlyStopping(monitor='val_loss', patience=10)])
 
+    model.save('/data/model_cnn.h5')
+
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.plot(history.history['accuracy'], label='Train Accuracy')
     ax.plot(history.history['val_accuracy'], label='Test Accuracy')
@@ -128,15 +134,18 @@ def model_logistic(data_input, data_output, size):
 
     cm = confusion_matrix(Y_test, model.predict(X_test))
 
+    filename_model = "/data/model_logistic.sav"
+    pickle.dump(model, open(filename_model, 'wb'))
+
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.imshow(cm)
+    ax.imshow(cm, cmap='viridis')
     ax.grid(False)
     ax.xaxis.set(ticks=(0, 1), ticklabels=('Predicted 0s', 'Predicted 1s'))
     ax.yaxis.set(ticks=(0, 1), ticklabels=('Actual 0s', 'Actual 1s'))
     ax.set_ylim(1.5, -0.5)
     for i in range(2):
         for j in range(2):
-            ax.text(j, i, cm[i, j], ha='center', va='center', color='red')
+            ax.text(j, i, round(cm[i, j] / np.sum(cm), 2), ha='center', va='center', color='red', size='15')
 
     return model, fig
 
@@ -150,15 +159,18 @@ def model_random_forest(data_input, data_output, size):
 
     cm = confusion_matrix(Y_test, model.predict(X_test))
 
+    filename_model = "/data/model_random_forest.sav"
+    pickle.dump(model, open(filename_model, 'wb'))
+
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.imshow(cm)
+    ax.imshow(cm, cmap='viridis')
     ax.grid(False)
     ax.xaxis.set(ticks=(0, 1), ticklabels=('Predicted 0s', 'Predicted 1s'))
     ax.yaxis.set(ticks=(0, 1), ticklabels=('Actual 0s', 'Actual 1s'))
     ax.set_ylim(1.5, -0.5)
     for i in range(2):
         for j in range(2):
-            ax.text(j, i, cm[i, j], ha='center', va='center', color='red')
+            ax.text(j, i, round(cm[i, j] / np.sum(cm), 2), ha='center', va='center', color='red', size='15')
 
     return model, fig
 
@@ -174,15 +186,18 @@ def model_svm(data_input, data_output, size):
 
     cm = confusion_matrix(Y_test, model.predict(X_test))
 
+    filename_model = "/data/model_svm.sav"
+    pickle.dump(model, open(filename_model, 'wb'))
+
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.imshow(cm)
+    ax.imshow(cm, cmap='viridis')
     ax.grid(False)
     ax.xaxis.set(ticks=(0, 1), ticklabels=('Predicted 0s', 'Predicted 1s'))
     ax.yaxis.set(ticks=(0, 1), ticklabels=('Actual 0s', 'Actual 1s'))
     ax.set_ylim(1.5, -0.5)
     for i in range(2):
         for j in range(2):
-            ax.text(j, i, cm[i, j], ha='center', va='center', color='red')
+            ax.text(j, i, round(cm[i, j] / np.sum(cm), 2), ha='center', va='center', color='red', size='15')
 
     return model, fig
 
