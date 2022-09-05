@@ -69,7 +69,7 @@ def model_lstm(data_input, data_output, size):
                         shuffle=False,
                         callbacks=[EarlyStopping(monitor='val_loss', patience=10)])
 
-    model.save('/data/model_lstm.h5')
+    model.save('data/model_lstm.h5')
 
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.plot(history.history['accuracy'], label='Train Accuracy')
@@ -107,7 +107,7 @@ def model_cnn(data_input, data_output, size):
                         shuffle=False,
                         callbacks=[EarlyStopping(monitor='val_loss', patience=10)])
 
-    model.save('/data/model_cnn.h5')
+    model.save('data/model_cnn.h5')
 
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.plot(history.history['accuracy'], label='Train Accuracy')
@@ -134,7 +134,7 @@ def model_logistic(data_input, data_output, size):
 
     cm = confusion_matrix(Y_test, model.predict(X_test))
 
-    filename_model = "/data/model_logistic.sav"
+    filename_model = "data/model_logistic.sav"
     pickle.dump(model, open(filename_model, 'wb'))
 
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -159,7 +159,7 @@ def model_random_forest(data_input, data_output, size):
 
     cm = confusion_matrix(Y_test, model.predict(X_test))
 
-    filename_model = "/data/model_random_forest.sav"
+    filename_model = "data/model_random_forest.sav"
     pickle.dump(model, open(filename_model, 'wb'))
 
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -186,7 +186,7 @@ def model_svm(data_input, data_output, size):
 
     cm = confusion_matrix(Y_test, model.predict(X_test))
 
-    filename_model = "/data/model_svm.sav"
+    filename_model = "data/model_svm.sav"
     pickle.dump(model, open(filename_model, 'wb'))
 
     fig, ax = plt.subplots(figsize=(8, 8))
