@@ -6,4 +6,3 @@ pandas~=1.4.3
 adtk~=0.6.2
 streamlit~=1.11.0
 Pillow~=9.2.0
-streamlit_multipage~=0.0.18
