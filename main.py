@@ -187,10 +187,10 @@ def dashboard(st, **state):
     col3, col4 = st.columns(2)
 
     with col3:
-        high = float(st.number_input(str('Insert a highest limit for safety (' + pdt.unit(column) + ")")))
+        low = float(st.number_input(str('Insert a lowest limit for safety (' + pdt.unit(column) + ")")))
 
     with col4:
-        low = float(st.number_input(str('Insert a lowest limit for safety (' + pdt.unit(column) + ")")))
+        high = float(st.number_input(str('Insert a highest limit for safety (' + pdt.unit(column) + ")")))
 
     placeholder = st.empty()
 
