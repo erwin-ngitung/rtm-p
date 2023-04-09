@@ -372,10 +372,10 @@ def deployment(st, **state):
     col5, col6 = st.columns(2)
 
     with col5:
-        high = float(st.number_input(str('Insert a highest limit for safety (' + pdt.unit(feature) + ")")))
+        low = float(st.number_input(str('Insert a lowest limit for safety (' + pdt.unit(feature) + ")")))
 
     with col6:
-        low = float(st.number_input(str('Insert a lowest limit for safety (' + pdt.unit(feature) + ")")))
+        high = float(st.number_input(str('Insert a highest limit for safety (' + pdt.unit(feature) + ")")))
 
     st.markdown("<svg width=\"705\" height=\"5\"><line x1=\"0\" y1=\"2.5\" x2=\"705\" y2=\"2.5\" stroke=\"black\" "
                 "stroke-width=\"4\" fill=\"black\" /></svg>", unsafe_allow_html=True)
