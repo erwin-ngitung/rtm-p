@@ -14,8 +14,8 @@ RTM-P (Realtime Monitoring Prediction) is a technology based on machine learning
 * streamlit
 
 ## How to Run
-* Install package similiar with requirements.txt using "pip install -r requirements.txt" in your terminal.
+* Install a package similar with requirements.txt using "pip install -r requirements.txt" in your terminal.
 * After that, you can write "streamlit run main.py" to run this app.
 
 ## Acknowledgements
-Created by [Erwin Fernnda](https://github.com/erwin.ngitung) as a staff Machine Learning Engineer Center of PT.Intiva, Indonesia.
+It was created by [Erwin Fernnda](https://github.com/erwin.ngitung) as a staff Machine Learning Engineer Center of PT.Medco Energi International Indonesia.
